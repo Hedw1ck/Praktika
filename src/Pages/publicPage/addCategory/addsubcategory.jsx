@@ -3,21 +3,28 @@ import axios from "axios";
 
 const Addsubcategory = (props) => {
     props.type == "All" && props.addsubcategory(false)
+
     const [subcategory, setSubcategory] = React.useState("");
+    const [error, setError] = React.useState("");
 
     function handleAddSubcategory() {
-        axios.get(`http://localhost:4000/productstype/?type=${props.type}`).then((response) => {
-            const categoryId = response.data[0].id;
-            const currentData = response.data[0];
-            const currentSubcategories = currentData.subcategory || [];
-            const updatedSubcategories = [...currentSubcategories, subcategory];
+        if (subcategory === "") {
+            setError("The field is empty");
+        } else {
+            axios.get(`http://localhost:4000/productstype/?type=${props.type}`).then((response) => {
+                const categoryId = response.data[0].id;
+                const currentData = response.data[0];
+                const currentSubcategories = currentData.subcategory || [];
+                const updatedSubcategories = [...currentSubcategories, subcategory];
 
-            axios.patch(`http://localhost:4000/productstype/${categoryId}`, {
-                subcategory: updatedSubcategories
+                axios.patch(`http://localhost:4000/productstype/${categoryId}`, {
+                    subcategory: updatedSubcategories
+                })
             })
-        })
-        setSubcategory("")
+            setSubcategory("")
+        }
     }
+
     return (
         <div className={`absolute h-[250%] w-[30%]  p-2 right-0 top-[110%] bg-white items-center flex flex-col gap-2`}>
             <div className={`flex  h-[30%] justify-between w-full `}>
@@ -27,8 +34,10 @@ const Addsubcategory = (props) => {
                 </button>
             </div>
             <input
+                placeholder={`${error ? error : "Subcategory"}`}
+                value={subcategory}
                 onChange={(e) => setSubcategory(e.target.value)}
-                className={`w-full border-b-1 h-[30%] `}
+                className={`w-full border-b-1 h-[30%] ${error ?"placeholder-red-600":"placeholder-[#7F7F7F]" } `}
                 type="text"/>
             <button onClick={() => handleAddSubcategory()}
                     className={`h-[40%]  bg-[#0008C1] rounded-xl text-white w-[30%]`}>Add

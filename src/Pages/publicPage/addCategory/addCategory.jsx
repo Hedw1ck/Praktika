@@ -91,7 +91,7 @@ const AddCategory = (props) => {
                       dragProps,
                       isDragging
                   }) => (
-                    <div className="h-[60%]">
+                    <div className="h-[50%]">
                         <div
                             className={`h-full w-full flex items-center justify-center cursor-pointer ${isDragging ? 'border-2 border-blue-500' : ''}`}
                             onClick={onImageUpload}

@@ -4,11 +4,13 @@ import Page from './Pages/page'
 
 
 function App() {
-
+const token = localStorage.getItem('token');
 
   return (
     <>
-      <Header/>
+        {
+          token &&  <Header/>
+        }
       <Page/>
     </>
   )

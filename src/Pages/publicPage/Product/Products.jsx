@@ -2,9 +2,10 @@ import axios from 'axios';
 import React, {useEffect, useState} from 'react';
 import {FaFemale} from "react-icons/fa";
 import {FaMale} from "react-icons/fa";
-import {producttype, server} from '../../tools/routes.jsx';
-import AddCategory from "./addCategory/addCategory.jsx";
-import Addsubcategory from "./addCategory/addsubcategory.jsx";
+import {ABOUT_PRODUCT,producttype, server} from '../../../tools/routes.jsx';
+import AddCategory from "../addCategory/addCategory.jsx";
+import Addsubcategory from "../addCategory/addsubcategory.jsx";
+import {useNavigate} from "react-router-dom";
 
 const Products = () => {
     const [product, setProduct] = useState([]);
@@ -15,6 +16,12 @@ const Products = () => {
     const [addCategory, setAddCategory] = useState(false);
     const [addsubcategory, setAddsubcategory] = useState(false);
     const [selectedSubcategory, setSelectedSubcategory] = useState("All");
+const token = localStorage.getItem("token");
+    const navigate = useNavigate();
+    const handleProductClick = (productId) => {
+        navigate(`${ABOUT_PRODUCT}/${productId}`);
+    };
+
 
     useEffect(() => {
         axios.get(server).then((res) => {
@@ -104,25 +111,26 @@ const Products = () => {
                         </button>
                     </div>
                     <div className={`h-full  w-[95%]  flex gap-2 `}>
-                        <div onClick={resetFilters} className={` rounded-xl cursor-pointer  h-full w-[10%]   bg-[#FFFFFF]`}>All</div>
+                        <div onClick={resetFilters} className={` rounded-xl cursor-pointer  h-full w-[10%] flex items-center justify-center  bg-[#FFFFFF]`}>All</div>
                         <div className={`flex justify-between h-full w-[83%] gap-2 overflow-x-auto `}>
                         {
                             setcategory.map((p) => (
                                 <div key={p.id}
                                      onClick={() => filterByType(p.type)}
-                                     className={`${selectedType === p.type ? "shadow-[0px_1px_10px_14px_rgba(245,233,233,1)]" : "shadow-none"} rounded-xl bg-white cursor-pointer h-full  min-w-[140px] flex flex-col justify-center  items-center`}>
+                                     className={`${selectedType === p.type ?"shadow-[1px_-31px_38px_9px_rgba(232,152,218,0.49)_inset]" : "shadow-none"} rounded-xl bg-white cursor-pointer h-full  min-w-[140px] flex flex-col justify-center  items-center`}>
                                     <img src={p.images} className={` h-[70%]  w-[40%] `} alt=""/>
                                     <p className={`text-[#2E2E2E]  font-montserrat font-medium text-xs leading-none capitalize`}>{p.type}</p>
                                 </div>
                             ))}
                         </div>
-                        <button onClick={() => setAddCategory(!addCategory)}
-                                className={`rounded-xl h-full w-[7%]  bg-[#FFFFFF] cursor-pointer hover:bg-[#939393]`}>+
-                        </button>
+                        {token==="Admin"&&
+                            <button onClick={() => setAddCategory(!addCategory)}
+                                 className={`rounded-xl h-full w-[7%]  bg-[#FFFFFF] cursor-pointer hover:bg-[#939393]`}>+
+                        </button>}
                     </div>
                 </div>
 
-                {/*SUBCATEGORY NER EV DRANC AVELACUM*/}
+                {/*SUBCATEGORYNER EV DRANC AVELACUM*/}
 
                 <div className='h-[40%]  flex  items-end   relative'>
                     {
@@ -151,14 +159,14 @@ const Products = () => {
                             ))
                     }
                     {
-                      selectedType !=="All" && <button className={`h-[70%] w-[5%] ml-[2%] border-1`} onClick={() => setAddsubcategory(!addsubcategory)}>+</button>
+                      selectedType !=="All" && token==="Admin"  && <button className={`h-[70%] w-[5%] ml-[2%] border-1 cursor-pointer hover:bg-gray-600`} onClick={() => setAddsubcategory(!addsubcategory)}>+</button>
                     }
                     {
                         addsubcategory &&  <Addsubcategory type={selectedType} addsubcategory={setAddsubcategory} />
                     }
                 </div>
                 {
-                    addCategory && <AddCategory display={setAddCategory}/>
+                    addCategory   && <AddCategory display={setAddCategory}/>
                 }
             </div>
 
@@ -166,7 +174,10 @@ const Products = () => {
                 {/*Pradukti avelacum */}
                 {
                     filteredProducts.map((p) => (
-                        <div key={p.id} className={`h-[170px] w-[194px] bg-white flex flex-col items-center justify-center `}>
+                        <div
+                            onClick={()=>handleProductClick(p.id)}
+                            key={p.id}
+                        className={`h-[170px] w-[194px] cursor-pointer bg-white flex flex-col items-center justify-center `}>
                             <img src={p.image} className='h-[80%] w-[89%] rounded-t-xl' alt=""/>
                             <div className='flex h-[10%] w-[89%] items-center justify-between '>
                                 <span

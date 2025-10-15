@@ -62,7 +62,7 @@ const AddProduct = () => {
         })}
     }
     // console.log(addProductsType);
-    console.log(gender)
+    // console.log(gender)
     // console.log(subcategorys)
     // console.log(articles)
     // console.log(price)
@@ -97,7 +97,7 @@ const AddProduct = () => {
                                 <div
                                     onClick={() => AddProductsType(product)}
                                     key={product.id}
-                                    className={`${addProductsType === product.type ? "shadow-[0px_1px_10px_14px_rgba(245,233,233,1)]" : "shadow-none"} cursor-pointer min-w-[120px] rounded-xl bg-white h-[90%]  flex flex-col items-center  `}>
+                                    className={`${addProductsType === product.type ? "shadow-[1px_-31px_38px_9px_rgba(232,152,218,0.49)_inset]" : "shadow-none"} cursor-pointer min-w-[120px] rounded-xl bg-white h-[90%]  flex flex-col items-center  `}>
                                     <img className={`h-[70%] w-[40%] `} src={product.images} alt=""/>
                                     <span>{product.type}</span>
                                 </div>
