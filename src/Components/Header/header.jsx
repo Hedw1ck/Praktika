@@ -1,6 +1,8 @@
 import React from 'react';
 import {PUBLIC} from "../../tools/routes.jsx";
 import {Link} from 'react-router-dom';
+import { IoIosLogOut } from "react-icons/io";
+import { FaUser } from "react-icons/fa";
 
 const Header = () => {
 const token = localStorage.getItem('token');
@@ -31,11 +33,13 @@ function logout() {
                     }
                 </ul>
             </div>
-            <div className={`border-1 w-[20%] h-full absolute right-0 top-0`}>
-                <p>{token}</p>
+            <div className={` w-[20%] p-3 h-full bg-[#F1E9DC] items-center justify-around absolute flex right-0 top-0`}>
+                <p className={`flex text-2xl gap-1`}><FaUser />{token}</p>
                 <button
+                    className={`text-3xl cursor-pointer hover:rotate-15`}
                 onClick={()=>logout()}
-                >Log out</button>
+                ><IoIosLogOut />
+                </button>
             </div>
         </div>
     );

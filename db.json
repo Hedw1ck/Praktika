@@ -1,22 +1,16 @@
 {
   "users": [
     {
-      "id": 1,
+      "id": "1",
       "name": "John Doe",
       "email": "john@ex",
       "password": "word111"
     },
     {
-      "id": 2,
+      "id": "2",
       "name": "Admin",
       "email": "Admin@admin",
       "password": "Admin"
-    },
-    {
-      "id": 1760560747429,
-      "name": "Aramayis",
-      "email": "myisakhanyan@icloud.com",
-      "password": "Hedwick9979"
     }
   ],
   "productstype": [
@@ -103,7 +97,6 @@
         "Geometric",
         "Initial",
         "Symbolic ",
-        "Nature-Inspired",
         "Medallion",
         "Charm ",
         "Abstract",
