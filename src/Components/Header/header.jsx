@@ -16,7 +16,7 @@ function logout() {
     return (
         <div className={'h-[10vh] flex w-full gap-2 relative '}>
             <div className={`h-full w-[10%]  `}>
-                <img className={`h-full w-full `} src="src/Components/Header/logo (2).jpg" alt=""/>
+                <img className={`h-full w-full `} src="src/Components/Header/logo.png" alt=""/>
             </div>
             <div className={'h-full w-[65%] flex items-center justify-center'}>
                 <ul className={`flex justify-between w-full gap-2 h-full `}>
@@ -44,5 +44,4 @@ function logout() {
         </div>
     );
 };
-
 export default Header;

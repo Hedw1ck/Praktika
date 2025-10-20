@@ -156,7 +156,6 @@ const Products = () => {
                         </button>
                     </div>
 
-                    {/* ✅ Slick Slider Zone */}
                     <div className="h-full w-[95%] flex gap-2 items-center relative">
                         <div onClick={resetFilters} className="rounded-xl cursor-pointer h-full w-[10%] flex items-center justify-center bg-[#FFFFFF]">
                             All
@@ -191,7 +190,6 @@ const Products = () => {
                     </div>
                 </div>
 
-                {/* ✅ Subcategory Section */}
                 <div className="h-[40%] flex items-end relative">
                     {setcategory.find(cat => cat.type === selectedType)?.subcategory?.map((sub, i) => (
                         <div key={i} className="relative group">
@@ -201,15 +199,18 @@ const Products = () => {
                             >
                                 <p>{sub}</p>
                             </div>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    deleteSubcategory(sub);
-                                }}
-                                className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
-                            >
-                                ×
-                            </button>
+                            {   token === "Admin" &&
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        deleteSubcategory(sub);
+                                    }}
+                                    className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                                >
+                                    ×
+                                </button>
+                            }
+
                         </div>
                     ))}
 
@@ -228,7 +229,6 @@ const Products = () => {
                 {addCategory && <AddCategory display={setAddCategory} />}
             </div>
 
-            {/* ✅ Products Grid */}
             <div className="w-full h-[79%] flex flex-wrap overflow-y-auto gap-2">
                 {filteredProducts.map((p) => (
                     <div

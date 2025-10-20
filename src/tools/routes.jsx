@@ -4,6 +4,7 @@ import {Navigate} from "react-router-dom";
 import AboutProduct from "../Pages/publicPage/Product/aboutProduct.jsx";
 import AuthPage from "../Pages/AuthPage.jsx";
 import About from "../Pages/publicPage/About/About.jsx";
+import News from "../Pages/publicPage/News/News.jsx";
 
 
 const token = localStorage.getItem("token");
@@ -15,12 +16,14 @@ export const PRODUCTS = "/products"
 export const  ABOUT_PRODUCT = "/product"
 export const logReg ="/Login"
 export const ABOUT= "/About"
+export const NEWS= "/News"
 
 export const PUBLIC = [
     {path:`${ABOUT_PRODUCT}/:productId`,element:<AboutProduct/>},
     { path: "*", element: <Navigate to={PRODUCTS} />,  },
     {path:PRODUCTS, element: <Products />, name: "Products" },
     {path:ABOUT,element:<About/>,name: "About"},
+    {path:NEWS,element:<News/>,name: "News"},
       token==="Admin" &&  { path: ADD_PRODUCTS, element: <AddProduct />, name: "ADD_PRODUCTS" }
 ]
 export const login = [
