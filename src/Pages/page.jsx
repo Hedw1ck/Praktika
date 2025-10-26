@@ -4,7 +4,7 @@ import {login, PUBLIC} from "../tools/routes.jsx";
 const token = localStorage.getItem("token");
 const Page = () => {
     return (
-        <div className={` ${token?"min-h-[90vh]":"min-h-[100vh]"} w-full bg-[#E5E5E5] pl-10 pr-10 pt-10`}>
+        <div className={` ${token?"min-h-[90vh] pl-10 pr-10 pt-10":"min-h-[100vh]"} w-full bg-[#E5E5E5] `}>
             {
                 useRoutes(token ? PUBLIC : login)
             }

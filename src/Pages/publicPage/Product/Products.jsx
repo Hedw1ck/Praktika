@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { FaFemale, FaMale } from "react-icons/fa";
@@ -12,21 +11,21 @@ import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const PrevArrow = ({  onClick }) => (
+const PrevArrow = ({ onClick }) => (
     <button
         onClick={onClick}
-        className="absolute cursor-pointer -left-3 z-1 top-1/2 -translate-y-1/2  shadow-md w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition"
+        className="absolute cursor-pointer -left-3 z-10 top-1/2 -translate-y-1/2 shadow-md w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition bg-white"
     >
-        <ChevronLeft size={30} />
+        <ChevronLeft size={24} />
     </button>
 );
 
-const NextArrow = ({  onClick }) => (
+const NextArrow = ({ onClick }) => (
     <button
         onClick={onClick}
-        className="absolute cursor-pointer z-1 -right-3 top-1/2 -translate-y-1/2  shadow-md w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition"
+        className="absolute cursor-pointer z-10 -right-3 top-1/2 -translate-y-1/2 shadow-md w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition bg-white"
     >
-        <ChevronRight size={30} />
+        <ChevronRight size={24} />
     </button>
 );
 
@@ -42,7 +41,7 @@ const sliderSettings = {
     responsive: [
         {
             breakpoint: 1024,
-            settings: { slidesToShow: 5 }
+            settings: { slidesToShow: 4 }
         },
         {
             breakpoint: 768,
@@ -138,41 +137,52 @@ const Products = () => {
     };
 
     return (
-        <div className="h-[85vh] w-full">
-            <div className="h-[15%] w-full mb-10 relative">
-                <div className="h-[70%] w-full bg-[#E5E5E5] flex items-between relative">
-                    <div className="flex flex-col h-full w-[5%] justify-center items-center gap-[5%]">
+        <div className="w-full min-h-screen bg-[#F5F6FB]  overflow-hidden">
+            {/* FILTER HEADER */}
+            <div className="w-full mb-10 relative px-2 md:px-4">
+                {/* Filter Header */}
+                <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full">
+                    {/* Gender Buttons */}
+                    <div className="flex md:flex-col flex-row items-center justify-center gap-3 md:gap-4 w-full md:w-[5%]">
                         <button
                             onClick={() => filterByGender("female")}
-                            className={`rounded-xl h-full w-[90%] shadow-xl flex items-center cursor-pointer justify-center ${selectedGender === "female" ? "bg-pink-300 text-pink-600" : "bg-white text-[#939393]"}`}
+                            className={`flex items-center justify-center rounded-xl shadow-md cursor-pointer transition-all duration-200 
+          ${selectedGender === "female" ? "bg-pink-200 text-pink-600 scale-105" : "bg-white text-gray-400 hover:bg-pink-100" } 
+          w-12 h-12 md:w-[90%] md:h-12`}
                         >
-                            <FaFemale className="text-2xl" />
+                            <FaFemale className="text-xl md:text-2xl" />
                         </button>
+
                         <button
                             onClick={() => filterByGender("male")}
-                            className={`rounded-xl h-full w-[90%] shadow-xl flex items-center cursor-pointer justify-center ${selectedGender === "male" ? "bg-blue-300 text-blue-600" : "bg-white text-[#939393]"}`}
+                            className={`flex items-center justify-center rounded-xl shadow-md cursor-pointer transition-all duration-200 
+          ${selectedGender === "male" ? "bg-blue-200 text-blue-600 scale-105" : "bg-white text-gray-400 hover:bg-blue-100"} 
+          w-12 h-12 md:w-[90%] md:h-12`}
                         >
-                            <FaMale className="text-2xl" />
+                            <FaMale className="text-xl md:text-2xl" />
                         </button>
                     </div>
 
-                    <div className="h-full w-[95%] flex gap-2 items-center relative">
-                        <div onClick={resetFilters} className="rounded-xl cursor-pointer h-full w-[10%] flex items-center justify-center bg-[#FFFFFF]">
+                    {/* Category Slider + All Button */}
+                    <div className="flex flex-1 flex-col md:flex-row items-center gap-3 md:gap-4 w-full md:w-[95%]">
+                        <div
+                            onClick={resetFilters}
+                            className="flex items-center justify-center rounded-xl bg-white h-12 md:h-full w-full md:w-[10%] shadow-sm cursor-pointer hover:bg-gray-100 transition"
+                        >
                             All
                         </div>
 
-                        <div className="relative w-[83%]">
+                        <div className="relative w-full md:w-[83%] overflow-x-hidden rounded-xl">
                             <Slider {...sliderSettings}>
                                 {setcategory.map((p) => (
-                                    <div key={p.id} className="px-2">
+                                    <div key={p.id} className="px-2 py-1">
                                         <div
                                             onClick={() => filterByType(p.type)}
-                                            className={`${selectedType === p.type ? "shadow-[1px_-31px_38px_9px_rgba(232,152,218,0.49)_inset]" : "shadow-none"} rounded-xl bg-white cursor-pointer h-[100px] flex flex-col justify-center items-center`}
+                                            className={`flex flex-col justify-center items-center cursor-pointer h-[100px] rounded-xl transition-all duration-200 
+                  ${selectedType === p.type ? "shadow-inner shadow-pink-300 scale-105" : "bg-white hover:shadow-md"}`}
                                         >
-                                            <img src={p.images} className="h-[70%] w-[40%]" alt="" />
-                                            <p className="text-[#2E2E2E] font-montserrat font-medium text-xs leading-none capitalize">
-                                                {p.type}
-                                            </p>
+                                            <img src={p.images} className="h-[70%] w-[40%] object-contain" alt={p.type} />
+                                            <p className="text-xs md:text-sm font-medium text-gray-800 mt-1 capitalize">{p.type}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -182,7 +192,7 @@ const Products = () => {
                         {token === "Admin" && (
                             <button
                                 onClick={() => setAddCategory(!addCategory)}
-                                className="rounded-xl h-full w-[7%] bg-[#FFFFFF] cursor-pointer hover:bg-[#939393]"
+                                className="flex items-center justify-center w-10 h-10 md:w-[7%] md:h-full rounded-xl bg-white shadow-sm cursor-pointer hover:bg-gray-200 transition"
                             >
                                 +
                             </button>
@@ -190,33 +200,32 @@ const Products = () => {
                     </div>
                 </div>
 
-                <div className="h-[40%] flex items-end relative">
+                {/* Subcategories */}
+                <div className="flex flex-wrap gap-2 md:gap-3 mt-4 justify-center md:justify-start">
                     {setcategory.find(cat => cat.type === selectedType)?.subcategory?.map((sub, i) => (
                         <div key={i} className="relative group">
                             <div
                                 onClick={() => setSelectedSubcategory(sub)}
-                                className={`${selectedSubcategory === sub ? "border-blue-300" : "border-white"} h-[90%] px-3 flex items-end cursor-pointer border-b-3 relative`}
+                                className={`px-3 py-1 border-b-2 cursor-pointer transition-all duration-200 
+            ${selectedSubcategory === sub ? "border-blue-400 text-blue-600 font-semibold" : "border-gray-200 text-gray-600 hover:text-blue-500"}`}
                             >
-                                <p>{sub}</p>
+                                {sub}
                             </div>
-                            {   token === "Admin" &&
+
+                            {token === "Admin" &&
                                 <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        deleteSubcategory(sub);
-                                    }}
-                                    className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                                    onClick={(e) => { e.stopPropagation(); deleteSubcategory(sub); }}
+                                    className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-xs text-white bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition"
                                 >
                                     ×
                                 </button>
                             }
-
                         </div>
                     ))}
 
                     {selectedType !== "All" && token === "Admin" && (
                         <button
-                            className="h-[70%] w-[5%] ml-[2%] border-1 cursor-pointer hover:bg-gray-600"
+                            className="flex items-center justify-center w-8 h-8 border rounded-md hover:bg-gray-300 transition"
                             onClick={() => setAddsubcategory(!addsubcategory)}
                         >
                             +
@@ -229,14 +238,16 @@ const Products = () => {
                 {addCategory && <AddCategory display={setAddCategory} />}
             </div>
 
-            <div className="w-full h-[79%] flex flex-wrap overflow-y-auto gap-2">
+
+            {/* PRODUCT GRID */}
+            <div className="w-full flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-4 md:gap-5 px-3 md:px-6">
                 {filteredProducts.map((p) => (
                     <div
                         onClick={() => handleProductClick(p.id)}
                         key={p.id}
-                        className="h-[170px] w-[194px] cursor-pointer bg-white flex flex-col items-center justify-center"
+                        className="h-[170px] w-[46%] sm:w-[31%] md:w-[194px] cursor-pointer bg-white flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg transition"
                     >
-                        <img src={p.image} className="h-[80%] w-[89%] rounded-t-xl" alt="" />
+                        <img src={p.image} className="h-[80%] w-[89%] rounded-t-xl object-cover" alt="" />
                         <div className="flex h-[10%] w-[89%] items-center justify-between">
                             <span className="font-montserrat font-medium text-[14px] capitalize text-[#2E2E2E]">
                                 {p.article}

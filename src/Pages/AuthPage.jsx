@@ -86,7 +86,7 @@ const AuthPage = () => {
     };
 
     return (
-        <div className="min-h-[90vh] flex items-center justify-center bg-gradient-to-br from-sky-600 via-indigo-800 to-slate-900 p-4 relative overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-600 via-indigo-800 to-slate-900 p-4 relative overflow-hidden">
             {/* Light reflection blobs behind glass */}
             <div className="absolute w-72 h-72 bg-cyan-400/40 blur-[100px] rounded-full top-10 left-10 animate-pulse" />
             <div className="absolute w-96 h-96 bg-indigo-500/30 blur-[120px] rounded-full bottom-0 right-0 animate-pulse" />

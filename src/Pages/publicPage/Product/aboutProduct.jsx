@@ -35,7 +35,7 @@ const AboutProduct = () => {
             <h1 className="text-2xl font-bold mb-4">About the product</h1>
                 { product && (
                     <div className="h-full w-full bg-white p-4 ">
-                        <img className="h-[60%] w-[40%] rounded-xl" src={product.image} alt=""/>
+                        <img className="h-[60%] w-[40%]  rounded-xl" src={product.image} alt=""/>
                         <p>Price: {product.price}$</p>
                         <p>Type: {product.type}</p>
                         <p>Subcategory: {product.subcategory}</p>

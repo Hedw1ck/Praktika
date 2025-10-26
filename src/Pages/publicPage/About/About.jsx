@@ -6,19 +6,18 @@ const About = () => {
                 {/* Header */}
                 <header className="bg-gradient-to-r from-purple-600 to-pink-500 text-white py-12">
                     <div className="container mx-auto px-4 text-center">
-                        <h1 className="text-4xl font-bold mb-4">Jewelry Store</h1>
-                        <p className="text-xl opacity-90">Exclusive Collection 2025</p>
+                        <h1 className="text-3xl md:text-4xl font-bold mb-4">Jewelry Store</h1>
+                        <p className="text-lg md:text-xl opacity-90">Exclusive Collection 2025</p>
                     </div>
                 </header>
 
                 {/* Jewelry Gallery */}
                 <div className="container mx-auto px-4 py-12">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 
                         {/* Ring 1 */}
-                        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div className="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
                             <div className="h-80 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                {/* Image placeholder */}
                                 <div className="text-center">
                                     <div className="w-32 h-32 bg-gradient-to-r from-blue-300 to-purple-300 rounded-full mx-auto mb-4 flex items-center justify-center">
                                         <img  className={`rounded-full`} src="src/Pages/publicPage/About/diamond.jpg" alt=""/>
@@ -29,9 +28,8 @@ const About = () => {
                         </div>
 
                         {/* Ring 2 */}
-                        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div className="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
                             <div className="h-80 bg-gradient-to-br from-yellow-50 to-amber-100 flex items-center justify-center">
-                                {/* Image placeholder */}
                                 <div className="text-center">
                                     <div className="w-32 h-32 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                                         <img className={`rounded-full`} src="src/Pages/publicPage/About/gold.jpg" alt=""/>
@@ -42,9 +40,8 @@ const About = () => {
                         </div>
 
                         {/* Necklace 1 */}
-                        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div className="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
                             <div className="h-80 bg-gradient-to-br from-pink-50 to-rose-100 flex items-center justify-center">
-                                {/* Image placeholder */}
                                 <div className="text-center">
                                     <div className="w-32 h-32 bg-gradient-to-r from-pink-400 to-rose-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                                         <img className={`rounded-full`} src="src/Pages/publicPage/About/NECKLACE.jpg" alt=""/>
@@ -55,9 +52,8 @@ const About = () => {
                         </div>
 
                         {/* Earrings 1 */}
-                        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div className="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
                             <div className="h-80 bg-gradient-to-br from-blue-50 to-cyan-100 flex items-center justify-center">
-                                {/* Image placeholder */}
                                 <div className="text-center">
                                     <div className="w-32 h-32 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                                         <img className={`rounded-full`} src="src/Pages/publicPage/About/EARRINGS.jpg" alt=""/>
@@ -68,9 +64,8 @@ const About = () => {
                         </div>
 
                         {/* Bracelet 1 */}
-                        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div className="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
                             <div className="h-80 bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center">
-                                {/* Image placeholder */}
                                 <div className="text-center">
                                     <div className="w-32 h-32 bg-gradient-to-r from-emerald-400 to-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                                         <img className={`rounded-full`} src="src/Pages/publicPage/About/Bracelet.jpg" alt=""/>
@@ -81,9 +76,8 @@ const About = () => {
                         </div>
 
                         {/* Collection */}
-                        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div className="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
                             <div className="h-80 bg-gradient-to-br from-purple-50 to-violet-100 flex items-center justify-center">
-                                {/* Image placeholder */}
                                 <div className="text-center">
                                     <div className="w-32 h-32 bg-gradient-to-r from-purple-400 to-violet-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                                         <img className={`rounded-full`} src="src/Pages/publicPage/About/logo.png" alt=""/>

@@ -6,7 +6,7 @@ const News = () => {
             {/* Header */}
             <header className="bg-gradient-to-r from-purple-600 to-pink-500 text-white py-12">
                 <div className="container mx-auto px-4 text-center">
-                    <h1 className="text-4xl font-bold mb-4">Jewelry News & Trends</h1>
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4">Jewelry News & Trends</h1>
                     <p className="text-xl opacity-90">Latest Updates from the World of Jewelry</p>
                 </div>
             </header>
