@@ -3,3 +3,278 @@
 input{
     outline:none;
 }
+
+/* Custom Media Queries */
+
+/* Extra Small Devices */
+@media (max-width: 319px) {
+    .xs\:text-xs {
+        font-size: 0.75rem;
+    }
+}
+
+/* Small Devices */
+@media (min-width: 640px) {
+    .sm\:container {
+        max-width: 640px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* Medium Devices */
+@media (min-width: 768px) {
+    .md\:container {
+        max-width: 768px;
+    }
+}
+
+/* Large Devices */
+@media (min-width: 1024px) {
+    .lg\:container {
+        max-width: 1024px;
+    }
+}
+
+/* Extra Large Devices */
+@media (min-width: 1280px) {
+    .xl\:container {
+        max-width: 1280px;
+    }
+}
+
+/* Ultra Wide Screens */
+@media (min-width: 1920px) {
+    .3xl\:container {
+        max-width: 1920px;
+    }
+}
+
+/* Landscape Orientation */
+@media (orientation: landscape) and (max-height: 500px) {
+    .landscape\:hidden {
+        display: none;
+    }
+    
+    .landscape\:h-auto {
+        height: auto;
+    }
+}
+
+/* Portrait Orientation */
+@media (orientation: portrait) {
+    .portrait\:h-screen {
+        height: 100vh;
+    }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .retina\:border-2 {
+        border-width: 2px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .dark\:bg-gray-800 {
+        background-color: #1f2937;
+    }
+    
+    .dark\:text-white {
+        color: #ffffff;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .print\:hidden {
+        display: none;
+    }
+    
+    .print\:text-black {
+        color: #000000;
+    }
+    
+    .print\:bg-white {
+        background-color: #ffffff;
+    }
+}
+
+/* Hover Support Detection */
+@media (hover: hover) {
+    .hover\:transition {
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Touch Device Detection */
+@media (pointer: coarse) {
+    .touch\:cursor-pointer {
+        cursor: pointer;
+    }
+    
+    .touch\:select-none {
+        user-select: none;
+    }
+}
+
+/* Custom Scrollbar */
+@media (min-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #9333ea, #ec4899);
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(to bottom, #7e22ce, #db2777);
+    }
+}
+
+/* Focus Visible for Accessibility */
+:focus-visible {
+    outline: 2px solid #9333ea;
+    outline-offset: 2px;
+}
+
+/* Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Responsive Images */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Container Responsive Padding */
+@media (max-width: 640px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+    .container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+/* Safe Area Insets for Mobile */
+@supports (padding: max(0px)) {
+    .safe-area-inset {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+    }
+}
+
+/* Grid Responsive Adjustments */
+@media (max-width: 767px) {
+    .grid-cols-auto {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .grid-cols-auto {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid-cols-auto {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+/* Card Responsive Styles */
+@media (max-width: 640px) {
+    .card {
+        padding: 1rem;
+        border-radius: 0.75rem;
+    }
+}
+
+@media (min-width: 641px) {
+    .card {
+        padding: 1.5rem;
+        border-radius: 1rem;
+    }
+}
+
+/* Button Responsive Sizing */
+@media (max-width: 640px) {
+    .btn-primary {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+}
+
+@media (min-width: 641px) {
+    .btn-primary {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+/* Text Responsive Sizing */
+@media (max-width: 640px) {
+    h1 {
+        font-size: 1.875rem;
+        line-height: 2.25rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+        line-height: 2rem;
+    }
+    
+    h3 {
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+    }
+}
+
+@media (min-width: 641px) {
+    h1 {
+        font-size: 3rem;
+        line-height: 1;
+    }
+    
+    h2 {
+        font-size: 2.25rem;
+        line-height: 2.5rem;
+    }
+    
+    h3 {
+        font-size: 1.875rem;
+        line-height: 2.25rem;
+    }
+}

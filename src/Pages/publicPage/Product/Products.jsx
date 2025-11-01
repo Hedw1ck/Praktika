@@ -1,10 +1,11 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { FaFemale, FaMale } from "react-icons/fa";
+import { FaFemale, FaMale, FaTrash } from "react-icons/fa";
 import { ABOUT_PRODUCT, producttype, server } from '../../../tools/routes.jsx';
 import AddCategory from "../addCategory/addCategory.jsx";
 import Addsubcategory from "../addCategory/addsubcategory.jsx";
 import { useNavigate } from "react-router-dom";
+import { MdDelete } from "react-icons/md";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -63,6 +64,7 @@ const Products = () => {
     const [addCategory, setAddCategory] = useState(false);
     const [addsubcategory, setAddsubcategory] = useState(false);
     const [selectedSubcategory, setSelectedSubcategory] = useState("All");
+    const [deleteConfirm, setDeleteConfirm] = useState(null);
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
 
@@ -133,6 +135,21 @@ const Products = () => {
 
         } catch (error) {
             console.error('Error deleting subcategory:', error);
+        }
+    };
+
+    const handleDeleteProduct = async (productId, productArticle) => {
+        try {
+            await axios.delete(`${server}/${productId}`);
+            
+            // Update local state
+            setProduct(product.filter(p => p.id !== productId));
+            setFilteredProducts(filteredProducts.filter(p => p.id !== productId));
+            
+            setDeleteConfirm(null);
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            alert('Failed to delete product');
         }
     };
 
@@ -243,20 +260,71 @@ const Products = () => {
             <div className="w-full flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-4 md:gap-5 px-3 md:px-6">
                 {filteredProducts.map((p) => (
                     <div
-                        onClick={() => handleProductClick(p.id)}
                         key={p.id}
-                        className="h-[170px] w-[46%] sm:w-[31%] md:w-[194px] cursor-pointer bg-white flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg transition"
+                        className="h-[170px] w-[46%] sm:w-[31%] md:w-[194px] bg-white rounded-xl shadow-md hover:shadow-lg transition relative group"
                     >
-                        <img src={p.image} className="h-[80%] w-[89%] rounded-t-xl object-cover" alt="" />
-                        <div className="flex h-[10%] w-[89%] items-center justify-between">
-                            <span className="font-montserrat font-medium text-[14px] capitalize text-[#2E2E2E]">
-                                {p.article}
-                            </span>
-                            <span className="font-semibold text-[14px] text-[#1F1617]">{p.price}$</span>
+                        <div
+                            onClick={() => handleProductClick(p.id)}
+                            className="cursor-pointer h-full flex flex-col items-center justify-center"
+                        >
+                            <img src={p.image} className="h-[80%] w-[89%] rounded-t-xl object-cover" alt={p.article} />
+                            <div className="flex h-[10%] w-[89%] items-center justify-between">
+                                <span className="font-montserrat font-medium text-[14px] capitalize text-[#2E2E2E]">
+                                    {p.article}
+                                </span>
+                                <span className="font-semibold text-[14px] text-[#1F1617]">{p.price}$</span>
+                            </div>
                         </div>
+                        
+                        {/* Delete Button - Only for Admin */}
+                        {token === "Admin" && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteConfirm({
+                                        id: p.id,
+                                        article: p.article
+                                    });
+                                }}
+                                className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-lg z-10"
+                                title="Delete Product"
+                            >
+                                <FaTrash className="text-xs" />
+                            </button>
+                        )}
                     </div>
                 ))}
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {deleteConfirm && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-2xl shadow-2xl p-6 w-11/12 max-w-md">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Confirm Deletion</h2>
+                        <p className="text-gray-600 mb-6">
+                            Are you sure you want to delete product <span className="font-semibold">{deleteConfirm.article}</span>?
+                            <br />
+                            <span className="text-sm text-red-600 mt-2 block">This action cannot be undone.</span>
+                        </p>
+                        
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setDeleteConfirm(null)}
+                                className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleDeleteProduct(deleteConfirm.id, deleteConfirm.article)}
+                                className="flex-1 px-4 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center justify-center gap-2"
+                            >
+                                <MdDelete />
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
