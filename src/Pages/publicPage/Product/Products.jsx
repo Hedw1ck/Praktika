@@ -5,7 +5,7 @@ import { ABOUT_PRODUCT, producttype, server } from '../../../tools/routes.jsx';
 import AddCategory from "../addCategory/addCategory.jsx";
 import Addsubcategory from "../addCategory/addsubcategory.jsx";
 import { useNavigate } from "react-router-dom";
-import { MdDelete, MdFilterList } from "react-icons/md";
+import { MdDelete } from "react-icons/md";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -56,12 +56,12 @@ const Products = () => {
     const [addsubcategory, setAddsubcategory] = useState(false);
     const [selectedSubcategory, setSelectedSubcategory] = useState("All");
     const [deleteConfirm, setDeleteConfirm] = useState(null);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
 
@@ -75,63 +75,54 @@ const Products = () => {
         const storedType = localStorage.getItem('selectedType');
         const storedSubcategory = localStorage.getItem('selectedSubcategory');
 
-        if (storedGender) setSelectedGender(storedGender);
-        if (storedType) setSelectedType(storedType);
-        if (storedSubcategory) setSelectedSubcategory(storedSubcategory);
+        if(storedGender) setSelectedGender(storedGender);
+        if(storedType) setSelectedType(storedType);
+        if(storedSubcategory) setSelectedSubcategory(storedSubcategory);
     }, []);
 
     useEffect(() => {
         axios.get(server).then((res) => {
-            setProduct(res.data || []);
-            setFilteredProducts(res.data || []);
+            setProduct(res.data);
+            setFilteredProducts(res.data);
         });
         axios.get(producttype).then((res) => {
-            setCategory(res.data || []);
+            setCategory(res.data);
         });
     }, []);
 
-    // FILTER + SEARCH
     useEffect(() => {
-        if (!product || product.length === 0) return;
-
-        let filtered = [...product];
+        let filtered = product;
 
         if (selectedGender) filtered = filtered.filter((p) => p.gender === selectedGender);
-        if (selectedType && selectedType !== "All") filtered = filtered.filter((p) => p.type === selectedType);
-        if (selectedSubcategory && selectedSubcategory !== "All") {
-            filtered = filtered.filter(
-                (p) => Array.isArray(p.subcategory) && p.subcategory.some((s) => s?.toLowerCase().includes(selectedSubcategory.toLowerCase()))
-            );
-        }
-
-        if (searchQuery && searchQuery.trim() !== "") {
-            const q = searchQuery.toLowerCase();
-            filtered = filtered.filter((p) =>
-                (p.article && p.article.toLowerCase().includes(q)) ||
-                (p.name && p.name.toLowerCase().includes(q)) ||
-                (p.type && p.type.toLowerCase().includes(q)) ||
-                (Array.isArray(p.subcategory) && p.subcategory.some((s) => s?.toLowerCase().includes(q)))
-            );
-        }
+        if (selectedType !== "All") filtered = filtered.filter((p) => p.type === selectedType);
+        if (selectedSubcategory !== "All") filtered = filtered.filter(
+            (p) => p.subcategory && p.subcategory.includes(selectedSubcategory)
+        );
 
         if (minPrice) filtered = filtered.filter((p) => p.price >= parseFloat(minPrice));
         if (maxPrice) filtered = filtered.filter((p) => p.price <= parseFloat(maxPrice));
-        if (startDate) filtered = filtered.filter((p) => new Date(p.createdAt) >= new Date(startDate));
-        if (endDate) filtered = filtered.filter((p) => new Date(p.createdAt) <= new Date(endDate));
+        if (startDate) filtered = filtered.filter((p) => new Date(p.createdAt) >= new Date(startDate)); // Assuming products have 'createdAt' field
+        if (endDate) filtered = filtered.filter((p) => new Date(p.createdAt) <= new Date(endDate)); // Assuming products have 'createdAt' field
+
+        if (searchQuery) {
+            filtered = filtered.filter((p) =>
+                p.article.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        }
 
         setFilteredProducts(filtered);
-    }, [selectedGender, selectedType, selectedSubcategory, product, searchQuery, minPrice, maxPrice, startDate, endDate]);
+    }, [selectedGender, selectedType, selectedSubcategory, minPrice, maxPrice, startDate, endDate, searchQuery, product]);
 
     // FILTER FUNCTIONS
-    const filterByGender = (gender) => {
+    function filterByGender(gender) {
         setSelectedGender(gender);
         localStorage.setItem('selectedGender', gender);
-    };
-    const filterByType = (type) => {
+    }
+    function filterByType(type) {
         setSelectedType(type);
         localStorage.setItem('selectedType', type);
-    };
-    const resetFilters = () => {
+    }
+    function resetFilters() {
         setSelectedGender(null);
         setSelectedType("All");
         setSelectedSubcategory("All");
@@ -139,16 +130,18 @@ const Products = () => {
         setMaxPrice('');
         setStartDate('');
         setEndDate('');
+        setSearchQuery('');
         localStorage.removeItem('selectedGender');
         localStorage.removeItem('selectedType');
         localStorage.removeItem('selectedSubcategory');
-    };
+    }
     const handleAddCategory = (newCategory) => {
         setCategory(prev => [newCategory, ...prev]);
     };
 
     const deleteSubcategory = async (subcategoryToDelete) => {
         if (!selectedType || selectedType === "All") return;
+
         try {
             const currentCategory = setcategory.find(cat => cat.type === selectedType);
             if (!currentCategory) return;
@@ -186,26 +179,36 @@ const Products = () => {
         }
     };
 
+    const applyAdditionalFilters = () => {
+        setShowFilters(false);
+        // Filtering is handled in useEffect
+    };
+
     return (
         <div className="w-full min-h-screen bg-[#F5F6FB] overflow-hidden">
-
-            {/* SEARCH BAR */}
-            <div className="w-full flex justify-center my-4 px-4">
+            {/* SEARCH BAR AT TOP */}
+            <div className="w-full px-2 md:px-4 mb-4">
                 <input
                     type="text"
-                    placeholder="Search by article, name, type..."
+                    placeholder="Search by product name..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full md:w-1/3 px-4 py-2 rounded-xl shadow-md border border-gray-300 outline-none
-                    focus:border-blue-400 transition"
+                    className="w-full p-3 rounded-xl border border-gray-300 shadow-sm focus:outline-none focus:border-blue-400"
                 />
             </div>
 
             {/* FILTER HEADER */}
             <div className="w-full mb-10 relative px-2 md:px-4">
                 <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full">
+                    {/* Additional Filters Button on Left */}
+                    <button
+                        onClick={() => setShowFilters(true)}
+                        className="flex items-center justify-center rounded-xl bg-white shadow-md cursor-pointer transition-all duration-200 hover:bg-gray-100 w-12 h-12 md:w-16 md:h-12 text-gray-600 font-medium"
+                    >
+                        Filter
+                    </button>
 
-                    {/* Gender Buttons + Filter Button */}
+                    {/* Gender Buttons */}
                     <div className="flex md:flex-col flex-row items-center justify-center gap-3 md:gap-4 w-full md:w-[5%]">
                         <button
                             onClick={() => filterByGender("female")}
@@ -215,6 +218,7 @@ const Products = () => {
                         >
                             <FaFemale className="text-xl md:text-2xl" />
                         </button>
+
                         <button
                             onClick={() => filterByGender("male")}
                             className={`flex items-center justify-center rounded-xl shadow-md cursor-pointer transition-all duration-200 
@@ -222,14 +226,6 @@ const Products = () => {
                             w-12 h-12 md:w-[90%] md:h-12`}
                         >
                             <FaMale className="text-xl md:text-2xl" />
-                        </button>
-                        <button
-                            onClick={() => setShowAdvancedFilters(true)}
-                            className={`flex items-center justify-center rounded-xl shadow-md cursor-pointer transition-all duration-200 
-                            bg-white text-gray-400 hover:bg-gray-100 
-                            w-12 h-12 md:w-[90%] md:h-12`}
-                        >
-                            <MdFilterList className="text-xl md:text-2xl" />
                         </button>
                     </div>
 
@@ -281,6 +277,7 @@ const Products = () => {
                             >
                                 {sub}
                             </div>
+
                             {token === "Admin" &&
                                 <button
                                     onClick={(e) => { e.stopPropagation(); deleteSubcategory(sub); }}
@@ -291,6 +288,7 @@ const Products = () => {
                             }
                         </div>
                     ))}
+
                     {selectedType !== "All" && token === "Admin" && (
                         <button
                             className="flex items-center justify-center w-8 h-8 border rounded-md hover:bg-gray-300 transition"
@@ -299,6 +297,7 @@ const Products = () => {
                             +
                         </button>
                     )}
+
                     {addsubcategory && <Addsubcategory type={selectedType} addsubcategory={setAddsubcategory} />}
                 </div>
 
@@ -327,7 +326,10 @@ const Products = () => {
 
                         {token === "Admin" && (
                             <button
-                                onClick={(e) => { e.stopPropagation(); setDeleteConfirm({ id: p.id, article: p.article }); }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteConfirm({ id: p.id, article: p.article });
+                                }}
                                 className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-lg z-10"
                                 title="Delete Product"
                             >
@@ -338,74 +340,69 @@ const Products = () => {
                 ))}
             </div>
 
-            {/* ADVANCED FILTER MODAL */}
-            {showAdvancedFilters && (
+            {/* Additional Filters Modal */}
+            {showFilters && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-2xl shadow-2xl p-6 w-11/12 max-w-md">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Advanced Filters</h2>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-gray-700 mb-1">Minimum Price</label>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Additional Filters</h2>
+
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Price Range</label>
+                            <div className="flex gap-2">
                                 <input
                                     type="number"
+                                    placeholder="Min Price"
                                     value={minPrice}
                                     onChange={(e) => setMinPrice(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-400 outline-none"
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-400"
                                 />
-                            </div>
-                            <div>
-                                <label className="block text-gray-700 mb-1">Maximum Price</label>
                                 <input
                                     type="number"
+                                    placeholder="Max Price"
                                     value={maxPrice}
                                     onChange={(e) => setMaxPrice(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-400 outline-none"
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-400"
                                 />
                             </div>
-                            <div>
-                                <label className="block text-gray-700 mb-1">From Date</label>
+                        </div>
+
+                        <div className="mb-6">
+                            <label className="block text-gray-700 mb-2">Date Range</label>
+                            <div className="flex gap-2">
                                 <input
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-400 outline-none"
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-400"
                                 />
-                            </div>
-                            <div>
-                                <label className="block text-gray-700 mb-1">To Date</label>
                                 <input
                                     type="date"
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-400 outline-none"
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-400"
                                 />
                             </div>
                         </div>
-                        <div className="flex gap-3 mt-6">
+
+                        <div className="flex gap-3">
                             <button
-                                onClick={() => setShowAdvancedFilters(false)}
-                                className="flex-1 px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+                                onClick={() => setShowFilters(false)}
+                                className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
                             >
-                                Apply
+                                Cancel
                             </button>
                             <button
-                                onClick={() => {
-                                    setMinPrice('');
-                                    setMaxPrice('');
-                                    setStartDate('');
-                                    setEndDate('');
-                                    setShowAdvancedFilters(false);
-                                }}
-                                className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition"
+                                onClick={applyAdditionalFilters}
+                                className="flex-1 px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-200"
                             >
-                                Clear
+                                Apply
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* DELETE MODAL */}
+            {/* Delete Confirmation Modal */}
             {deleteConfirm && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-2xl shadow-2xl p-6 w-11/12 max-w-md">
@@ -415,6 +412,7 @@ const Products = () => {
                             <br />
                             <span className="text-sm text-red-600 mt-2 block">This action cannot be undone.</span>
                         </p>
+
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setDeleteConfirm(null)}
