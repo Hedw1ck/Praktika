@@ -38,8 +38,6 @@ const AddProduct = () => {
     function AddProducts() {
         setSuccess(false);
         setLoading(true);
-
-        // Clear previous errors
         setError("");
 
         if (addProductsType === "") {
@@ -47,19 +45,16 @@ const AddProduct = () => {
             setLoading(false);
             return;
         }
-        
         if (images.length === 0) {
             setError("Please upload an image");
             setLoading(false);
             return;
         }
-        
         if (articles === "") {
             setError("Please enter an article name");
             setLoading(false);
             return;
         }
-        
         if (price === "" || isNaN(price) || Number(price) <= 0) {
             setError("Please enter a valid price");
             setLoading(false);
@@ -85,8 +80,7 @@ const AddProduct = () => {
                 setError("");
                 setSuccess(true);
                 setLoading(false);
-                
-                // Reset success message after 3 seconds
+
                 setTimeout(() => setSuccess(false), 3000);
             })
             .catch(() => {
@@ -103,7 +97,6 @@ const AddProduct = () => {
                     <p className="text-sm text-gray-600">Create and add new products to your store</p>
                 </div>
 
-                {/* Success Message */}
                 {success && (
                     <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded-lg flex items-center gap-2 animate-pulse">
                         <FaCheckCircle className="text-green-500 text-xl" />
@@ -155,18 +148,22 @@ const AddProduct = () => {
                                 <button
                                     key={product.id}
                                     onClick={() => AddProductsTypeFn(product)}
-                                    className={`cursor-pointer min-w-[100px] md:min-w-[120px] rounded-xl bg-white flex flex-col items-center justify-center p-3 transition-all duration-200 border-2 ${
+                                    className={`cursor-pointer w-[120px] h-[150px] rounded-xl bg-white flex flex-col items-center justify-between p-3 transition-all duration-200 border-2 ${
                                         addProductsType === product.type
                                             ? "border-purple-500 shadow-[inset_0px_0px_20px_rgba(232,152,218,0.49)] scale-105"
                                             : "border-gray-200 hover:border-gray-300 hover:shadow-md"
                                     }`}
                                 >
-                                    <img
-                                        className="h-[50px] md:h-[60px] w-auto object-contain mb-2"
-                                        src={product.images}
-                                        alt={product.type}
-                                    />
-                                    <span className="text-xs md:text-sm font-medium text-gray-800 capitalize">{product.type}</span>
+                                    <div className="h-[60px] w-full flex items-center justify-center">
+                                        <img
+                                            className="max-h-full max-w-full object-contain"
+                                            src={product.images}
+                                            alt={product.type}
+                                        />
+                                    </div>
+                                    <span className="text-xs md:text-sm font-medium text-gray-800 capitalize text-center truncate w-full">
+          {product.type}
+        </span>
                                 </button>
                             ))}
                         </div>
@@ -210,7 +207,7 @@ const AddProduct = () => {
                     {/* Image Upload */}
                     <div className="w-full lg:w-[350px] bg-white rounded-2xl shadow-xl p-4 md:p-6">
                         <h2 className="text-lg font-semibold text-gray-700 mb-4">Product Image</h2>
-                        <div className="h-[300px] md:h-[400px] bg-gray-50 rounded-xl overflow-hidden border-2 border-dashed border-gray-300">
+                        <div className="h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] bg-gray-50 rounded-xl overflow-hidden border-2 border-dashed border-gray-300">
                             <ImageUploading
                                 multiple
                                 value={images}
@@ -218,44 +215,36 @@ const AddProduct = () => {
                                 maxNumber={1}
                                 dataURLKey="data_url"
                             >
-                                {({
-                                      imageList,
-                                      onImageUpload,
-                                      onImageUpdate,
-                                      isDragging,
-                                      dragProps,
-                                  }) => (
-                                    <div className="upload__image-wrapper h-full w-full">
+                                {({ imageList, onImageUpload, onImageUpdate, dragProps }) => (
+                                    <div className="upload__image-wrapper h-full w-full flex items-center justify-center">
                                         {imageList.length === 0 ? (
                                             <div
-                                                className="h-full w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
+                                                className="h-full w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors p-4 text-center"
                                                 onClick={onImageUpload}
                                                 {...dragProps}
                                             >
-                                                <div className="text-center p-6">
-                                                    <svg className="w-16 h-16 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                    </svg>
-                                                    <p className="text-gray-600 font-medium mb-1">Click or drag to upload</p>
-                                                    <p className="text-sm text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                                                </div>
+                                                <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                                <p className="text-gray-600 font-medium text-sm sm:text-base mb-1">Click or drag to upload</p>
+                                                <p className="text-xs sm:text-sm text-gray-500">PNG, JPG, GIF up to 10MB</p>
                                             </div>
                                         ) : (
-                                            <div className="h-full w-full relative bg-white">
+                                            <div className="h-full w-full relative">
                                                 {imageList.map((image, index) => (
-                                                    <div key={index} className="h-full w-full relative group">
+                                                    <div key={index} className="h-full w-full relative">
                                                         <img
                                                             onClick={() => onImageUpdate(index)}
                                                             src={image["data_url"]}
                                                             alt={`Uploaded ${index}`}
-                                                            className="h-full w-full object-contain cursor-pointer"
+                                                            className="h-full w-full object-contain p-2 cursor-pointer"
                                                         />
                                                         <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 setImages([]);
                                                             }}
-                                                            className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 shadow-lg hover:bg-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 shadow-lg hover:bg-red-700"
                                                         >
                                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -274,7 +263,7 @@ const AddProduct = () => {
                     {/* Product Details Form */}
                     <div className="flex-1 bg-white rounded-2xl shadow-xl p-4 md:p-6">
                         <h2 className="text-lg font-semibold text-gray-700 mb-4">Product Details</h2>
-                            <div className="space-y-6">
+                        <div className="space-y-6">
                             <div className="flex flex-col md:flex-row gap-4">
                                 <div className="flex-1">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -325,14 +314,13 @@ const AddProduct = () => {
                                 <p className="text-xs text-gray-500 mt-1">Describe the product's features, materials, and specifications</p>
                             </div>
 
-                            {/* Error Message */}
                             {error && (
                                 <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded">
                                     <p className="font-medium">{error}</p>
                                 </div>
                             )}
 
-                            {/* Submit Button */}
+                            {/* Buttons */}
                             <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
                                 <button
                                     onClick={() => {

@@ -5,7 +5,7 @@ import { ABOUT_PRODUCT, producttype, server } from '../../../tools/routes.jsx';
 import AddCategory from "../addCategory/addCategory.jsx";
 import Addsubcategory from "../addCategory/addsubcategory.jsx";
 import { useNavigate } from "react-router-dom";
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdFilterList } from "react-icons/md";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -40,18 +40,9 @@ const sliderSettings = {
     prevArrow: <PrevArrow />,
     nextArrow: <NextArrow />,
     responsive: [
-        {
-            breakpoint: 1024,
-            settings: { slidesToShow: 4 }
-        },
-        {
-            breakpoint: 768,
-            settings: { slidesToShow: 3 }
-        },
-        {
-            breakpoint: 480,
-            settings: { slidesToShow: 2 }
-        }
+        { breakpoint: 1024, settings: { slidesToShow: 4 } },
+        { breakpoint: 768, settings: { slidesToShow: 3 } },
+        { breakpoint: 480, settings: { slidesToShow: 2 } }
     ]
 };
 
@@ -65,6 +56,12 @@ const Products = () => {
     const [addsubcategory, setAddsubcategory] = useState(false);
     const [selectedSubcategory, setSelectedSubcategory] = useState("All");
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+    const [minPrice, setMinPrice] = useState('');
+    const [maxPrice, setMaxPrice] = useState('');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
 
@@ -72,48 +69,86 @@ const Products = () => {
         navigate(`${ABOUT_PRODUCT}/${productId}`);
     };
 
+    // Restore filters from localStorage on mount
     useEffect(() => {
-        axios.get(server).then((res) => {
-            setProduct(res.data);
-            setFilteredProducts(res.data);
-        });
-        axios.get(producttype).then((res) => {
-            setCategory(res.data);
-        });
+        const storedGender = localStorage.getItem('selectedGender');
+        const storedType = localStorage.getItem('selectedType');
+        const storedSubcategory = localStorage.getItem('selectedSubcategory');
+
+        if (storedGender) setSelectedGender(storedGender);
+        if (storedType) setSelectedType(storedType);
+        if (storedSubcategory) setSelectedSubcategory(storedSubcategory);
     }, []);
 
     useEffect(() => {
-        let filtered = product;
+        axios.get(server).then((res) => {
+            setProduct(res.data || []);
+            setFilteredProducts(res.data || []);
+        });
+        axios.get(producttype).then((res) => {
+            setCategory(res.data || []);
+        });
+    }, []);
 
-        if (selectedGender) {
-            filtered = filtered.filter((p) => p.gender === selectedGender);
-        }
-        if (selectedType !== "All") {
-            filtered = filtered.filter((p) => p.type === selectedType);
-        }
-        if (selectedSubcategory !== "All") {
+    // FILTER + SEARCH
+    useEffect(() => {
+        if (!product || product.length === 0) return;
+
+        let filtered = [...product];
+
+        if (selectedGender) filtered = filtered.filter((p) => p.gender === selectedGender);
+        if (selectedType && selectedType !== "All") filtered = filtered.filter((p) => p.type === selectedType);
+        if (selectedSubcategory && selectedSubcategory !== "All") {
             filtered = filtered.filter(
-                (p) => p.subcategory && p.subcategory.includes(selectedSubcategory)
+                (p) => Array.isArray(p.subcategory) && p.subcategory.some((s) => s?.toLowerCase().includes(selectedSubcategory.toLowerCase()))
             );
         }
-        setFilteredProducts(filtered);
-    }, [selectedGender, selectedType, selectedSubcategory, product]);
 
-    function filterByGender(gender) {
+        if (searchQuery && searchQuery.trim() !== "") {
+            const q = searchQuery.toLowerCase();
+            filtered = filtered.filter((p) =>
+                (p.article && p.article.toLowerCase().includes(q)) ||
+                (p.name && p.name.toLowerCase().includes(q)) ||
+                (p.type && p.type.toLowerCase().includes(q)) ||
+                (Array.isArray(p.subcategory) && p.subcategory.some((s) => s?.toLowerCase().includes(q)))
+            );
+        }
+
+        if (minPrice) filtered = filtered.filter((p) => p.price >= parseFloat(minPrice));
+        if (maxPrice) filtered = filtered.filter((p) => p.price <= parseFloat(maxPrice));
+        if (startDate) filtered = filtered.filter((p) => new Date(p.createdAt) >= new Date(startDate));
+        if (endDate) filtered = filtered.filter((p) => new Date(p.createdAt) <= new Date(endDate));
+
+        setFilteredProducts(filtered);
+    }, [selectedGender, selectedType, selectedSubcategory, product, searchQuery, minPrice, maxPrice, startDate, endDate]);
+
+    // FILTER FUNCTIONS
+    const filterByGender = (gender) => {
         setSelectedGender(gender);
-    }
-    function filterByType(type) {
+        localStorage.setItem('selectedGender', gender);
+    };
+    const filterByType = (type) => {
         setSelectedType(type);
-    }
-    function resetFilters() {
+        localStorage.setItem('selectedType', type);
+    };
+    const resetFilters = () => {
         setSelectedGender(null);
         setSelectedType("All");
         setSelectedSubcategory("All");
-    }
+        setMinPrice('');
+        setMaxPrice('');
+        setStartDate('');
+        setEndDate('');
+        localStorage.removeItem('selectedGender');
+        localStorage.removeItem('selectedType');
+        localStorage.removeItem('selectedSubcategory');
+    };
+    const handleAddCategory = (newCategory) => {
+        setCategory(prev => [newCategory, ...prev]);
+    };
 
     const deleteSubcategory = async (subcategoryToDelete) => {
         if (!selectedType || selectedType === "All") return;
-
         try {
             const currentCategory = setcategory.find(cat => cat.type === selectedType);
             if (!currentCategory) return;
@@ -131,6 +166,7 @@ const Products = () => {
 
             if (selectedSubcategory === subcategoryToDelete) {
                 setSelectedSubcategory("All");
+                localStorage.removeItem('selectedSubcategory');
             }
 
         } catch (error) {
@@ -141,11 +177,8 @@ const Products = () => {
     const handleDeleteProduct = async (productId, productArticle) => {
         try {
             await axios.delete(`${server}/${productId}`);
-            
-            // Update local state
             setProduct(product.filter(p => p.id !== productId));
             setFilteredProducts(filteredProducts.filter(p => p.id !== productId));
-            
             setDeleteConfirm(null);
         } catch (error) {
             console.error('Error deleting product:', error);
@@ -154,29 +187,49 @@ const Products = () => {
     };
 
     return (
-        <div className="w-full min-h-screen bg-[#F5F6FB]  overflow-hidden">
+        <div className="w-full min-h-screen bg-[#F5F6FB] overflow-hidden">
+
+            {/* SEARCH BAR */}
+            <div className="w-full flex justify-center my-4 px-4">
+                <input
+                    type="text"
+                    placeholder="Search by article, name, type..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full md:w-1/3 px-4 py-2 rounded-xl shadow-md border border-gray-300 outline-none
+                    focus:border-blue-400 transition"
+                />
+            </div>
+
             {/* FILTER HEADER */}
             <div className="w-full mb-10 relative px-2 md:px-4">
-                {/* Filter Header */}
                 <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full">
-                    {/* Gender Buttons */}
+
+                    {/* Gender Buttons + Filter Button */}
                     <div className="flex md:flex-col flex-row items-center justify-center gap-3 md:gap-4 w-full md:w-[5%]">
                         <button
                             onClick={() => filterByGender("female")}
                             className={`flex items-center justify-center rounded-xl shadow-md cursor-pointer transition-all duration-200 
-          ${selectedGender === "female" ? "bg-pink-200 text-pink-600 scale-105" : "bg-white text-gray-400 hover:bg-pink-100" } 
-          w-12 h-12 md:w-[90%] md:h-12`}
+                            ${selectedGender === "female" ? "bg-pink-200 text-pink-600 scale-105" : "bg-white text-gray-400 hover:bg-pink-100"} 
+                            w-12 h-12 md:w-[90%] md:h-12`}
                         >
                             <FaFemale className="text-xl md:text-2xl" />
                         </button>
-
                         <button
                             onClick={() => filterByGender("male")}
                             className={`flex items-center justify-center rounded-xl shadow-md cursor-pointer transition-all duration-200 
-          ${selectedGender === "male" ? "bg-blue-200 text-blue-600 scale-105" : "bg-white text-gray-400 hover:bg-blue-100"} 
-          w-12 h-12 md:w-[90%] md:h-12`}
+                            ${selectedGender === "male" ? "bg-blue-200 text-blue-600 scale-105" : "bg-white text-gray-400 hover:bg-blue-100"} 
+                            w-12 h-12 md:w-[90%] md:h-12`}
                         >
                             <FaMale className="text-xl md:text-2xl" />
+                        </button>
+                        <button
+                            onClick={() => setShowAdvancedFilters(true)}
+                            className={`flex items-center justify-center rounded-xl shadow-md cursor-pointer transition-all duration-200 
+                            bg-white text-gray-400 hover:bg-gray-100 
+                            w-12 h-12 md:w-[90%] md:h-12`}
+                        >
+                            <MdFilterList className="text-xl md:text-2xl" />
                         </button>
                     </div>
 
@@ -196,7 +249,7 @@ const Products = () => {
                                         <div
                                             onClick={() => filterByType(p.type)}
                                             className={`flex flex-col justify-center items-center cursor-pointer h-[100px] rounded-xl transition-all duration-200 
-                  ${selectedType === p.type ? "shadow-inner shadow-pink-300 scale-105" : "bg-white hover:shadow-md"}`}
+                                            ${selectedType === p.type ? "shadow-inner shadow-pink-300 scale-105" : "bg-white hover:shadow-md"}`}
                                         >
                                             <img src={p.images} className="h-[70%] w-[40%] object-contain" alt={p.type} />
                                             <p className="text-xs md:text-sm font-medium text-gray-800 mt-1 capitalize">{p.type}</p>
@@ -222,13 +275,12 @@ const Products = () => {
                     {setcategory.find(cat => cat.type === selectedType)?.subcategory?.map((sub, i) => (
                         <div key={i} className="relative group">
                             <div
-                                onClick={() => setSelectedSubcategory(sub)}
+                                onClick={() => { setSelectedSubcategory(sub); localStorage.setItem('selectedSubcategory', sub); }}
                                 className={`px-3 py-1 border-b-2 cursor-pointer transition-all duration-200 
-            ${selectedSubcategory === sub ? "border-blue-400 text-blue-600 font-semibold" : "border-gray-200 text-gray-600 hover:text-blue-500"}`}
+                                ${selectedSubcategory === sub ? "border-blue-400 text-blue-600 font-semibold" : "border-gray-200 text-gray-600 hover:text-blue-500"}`}
                             >
                                 {sub}
                             </div>
-
                             {token === "Admin" &&
                                 <button
                                     onClick={(e) => { e.stopPropagation(); deleteSubcategory(sub); }}
@@ -239,7 +291,6 @@ const Products = () => {
                             }
                         </div>
                     ))}
-
                     {selectedType !== "All" && token === "Admin" && (
                         <button
                             className="flex items-center justify-center w-8 h-8 border rounded-md hover:bg-gray-300 transition"
@@ -248,13 +299,11 @@ const Products = () => {
                             +
                         </button>
                     )}
-
                     {addsubcategory && <Addsubcategory type={selectedType} addsubcategory={setAddsubcategory} />}
                 </div>
 
-                {addCategory && <AddCategory display={setAddCategory} />}
+                {addCategory && <AddCategory onAdd={handleAddCategory} display={setAddCategory} />}
             </div>
-
 
             {/* PRODUCT GRID */}
             <div className="w-full flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-4 md:gap-5 px-3 md:px-6">
@@ -275,17 +324,10 @@ const Products = () => {
                                 <span className="font-semibold text-[14px] text-[#1F1617]">{p.price}$</span>
                             </div>
                         </div>
-                        
-                        {/* Delete Button - Only for Admin */}
+
                         {token === "Admin" && (
                             <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setDeleteConfirm({
-                                        id: p.id,
-                                        article: p.article
-                                    });
-                                }}
+                                onClick={(e) => { e.stopPropagation(); setDeleteConfirm({ id: p.id, article: p.article }); }}
                                 className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-lg z-10"
                                 title="Delete Product"
                             >
@@ -296,7 +338,74 @@ const Products = () => {
                 ))}
             </div>
 
-            {/* Delete Confirmation Modal */}
+            {/* ADVANCED FILTER MODAL */}
+            {showAdvancedFilters && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-2xl shadow-2xl p-6 w-11/12 max-w-md">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Advanced Filters</h2>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-gray-700 mb-1">Minimum Price</label>
+                                <input
+                                    type="number"
+                                    value={minPrice}
+                                    onChange={(e) => setMinPrice(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-400 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-gray-700 mb-1">Maximum Price</label>
+                                <input
+                                    type="number"
+                                    value={maxPrice}
+                                    onChange={(e) => setMaxPrice(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-400 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-gray-700 mb-1">From Date</label>
+                                <input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-400 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-gray-700 mb-1">To Date</label>
+                                <input
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-400 outline-none"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex gap-3 mt-6">
+                            <button
+                                onClick={() => setShowAdvancedFilters(false)}
+                                className="flex-1 px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+                            >
+                                Apply
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setMinPrice('');
+                                    setMaxPrice('');
+                                    setStartDate('');
+                                    setEndDate('');
+                                    setShowAdvancedFilters(false);
+                                }}
+                                className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition"
+                            >
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* DELETE MODAL */}
             {deleteConfirm && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-2xl shadow-2xl p-6 w-11/12 max-w-md">
@@ -306,7 +415,6 @@ const Products = () => {
                             <br />
                             <span className="text-sm text-red-600 mt-2 block">This action cannot be undone.</span>
                         </p>
-                        
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setDeleteConfirm(null)}
