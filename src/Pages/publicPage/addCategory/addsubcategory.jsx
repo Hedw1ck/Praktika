@@ -15,7 +15,7 @@ const Addsubcategory = (props) => {
     const [loading, setLoading] = React.useState(false);
 
     function handleAddSubcategory() {
-        if (subcategory === "") {
+        if (subcategory.trim() === "") {
             setError("Subcategory name is required");
             return;
         }
@@ -23,42 +23,52 @@ const Addsubcategory = (props) => {
         setLoading(true);
         setError("");
 
-        axios.get(`http://localhost:4000/productstype/?type=${props.type}`)
+        axios.get(`http://localhost:4000/productstype/?type=${encodeURIComponent(props.type)}`)
             .then((response) => {
-                if (response.data.length === 0) {
+                if (!response.data || response.data.length === 0) {
                     setError("Category not found");
                     setLoading(false);
-                    return;
+                    return Promise.reject(new Error("Category not found"));
                 }
 
                 const categoryId = response.data[0].id;
                 const currentData = response.data[0];
                 const currentSubcategories = currentData.subcategory || [];
-                
-                // Check if subcategory already exists
-                if (currentSubcategories.includes(subcategory)) {
+
+                // Check if subcategory already exists (case-insensitive)
+                const exists = currentSubcategories.some(s => s.toLowerCase() === subcategory.trim().toLowerCase());
+                if (exists) {
                     setError("This subcategory already exists");
                     setLoading(false);
-                    return;
+                    return Promise.reject(new Error("Subcategory exists"));
                 }
 
-                const updatedSubcategories = [...currentSubcategories, subcategory];
+                const updatedSubcategories = [...currentSubcategories, subcategory.trim()];
 
                 return axios.patch(`http://localhost:4000/productstype/${categoryId}`, {
                     subcategory: updatedSubcategories
                 });
             })
             .then(() => {
+                // call parent's update function so UI refreshes without page reload
+                if (props.onUpdate && typeof props.onUpdate === 'function') {
+                    props.onUpdate();
+                }
+
                 setSubcategory("");
                 setSuccess(true);
                 setLoading(false);
+
                 setTimeout(() => {
                     setSuccess(false);
                     props.addsubcategory(false);
-                }, 1500);
+                }, 700);
             })
             .catch((err) => {
-                setError("Failed to add subcategory. Please try again.");
+                // if error message already set above, don't overwrite it
+                if (!error) {
+                    setError("Failed to add subcategory. Please try again.");
+                }
                 setLoading(false);
             });
     }

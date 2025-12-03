@@ -48,7 +48,7 @@ const sliderSettings = {
 
 const Products = () => {
     const [product, setProduct] = useState([]);
-    const [setcategory, setCategory] = useState([]);
+    const [categories, setCategory] = useState([]); // fixed name
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [selectedGender, setSelectedGender] = useState(null);
     const [selectedType, setSelectedType] = useState("All");
@@ -75,23 +75,36 @@ const Products = () => {
         const storedType = localStorage.getItem('selectedType');
         const storedSubcategory = localStorage.getItem('selectedSubcategory');
 
-        if(storedGender) setSelectedGender(storedGender);
-        if(storedType) setSelectedType(storedType);
-        if(storedSubcategory) setSelectedSubcategory(storedSubcategory);
+        if (storedGender) setSelectedGender(storedGender);
+        if (storedType) setSelectedType(storedType);
+        if (storedSubcategory) setSelectedSubcategory(storedSubcategory);
     }, []);
 
+    // Fetch products and categories
     useEffect(() => {
-        axios.get(server).then((res) => {
-            setProduct(res.data);
-            setFilteredProducts(res.data);
-        });
-        axios.get(producttype).then((res) => {
-            setCategory(res.data);
-        });
+        fetchProducts();
+        fetchCategories();
     }, []);
 
+    const fetchProducts = () => {
+        axios.get(server)
+            .then((res) => {
+                setProduct(res.data);
+                setFilteredProducts(res.data);
+            })
+            .catch(err => console.error('Failed to fetch products', err));
+    };
+
+    const fetchCategories = () => {
+        axios.get(producttype)
+            .then((res) => {
+                setCategory(res.data);
+            })
+            .catch(err => console.error('Failed to fetch product types', err));
+    };
+
     useEffect(() => {
-        let filtered = product;
+        let filtered = product.slice(); // copy
 
         if (selectedGender) filtered = filtered.filter((p) => p.gender === selectedGender);
         if (selectedType !== "All") filtered = filtered.filter((p) => p.type === selectedType);
@@ -101,12 +114,12 @@ const Products = () => {
 
         if (minPrice) filtered = filtered.filter((p) => p.price >= parseFloat(minPrice));
         if (maxPrice) filtered = filtered.filter((p) => p.price <= parseFloat(maxPrice));
-        if (startDate) filtered = filtered.filter((p) => new Date(p.createdAt) >= new Date(startDate)); // Assuming products have 'createdAt' field
-        if (endDate) filtered = filtered.filter((p) => new Date(p.createdAt) <= new Date(endDate)); // Assuming products have 'createdAt' field
+        if (startDate) filtered = filtered.filter((p) => new Date(p.createdAt) >= new Date(startDate));
+        if (endDate) filtered = filtered.filter((p) => new Date(p.createdAt) <= new Date(endDate));
 
         if (searchQuery) {
             filtered = filtered.filter((p) =>
-                p.article.toLowerCase().includes(searchQuery.toLowerCase())
+                (p.article || '').toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
 
@@ -118,10 +131,16 @@ const Products = () => {
         setSelectedGender(gender);
         localStorage.setItem('selectedGender', gender);
     }
+
     function filterByType(type) {
         setSelectedType(type);
         localStorage.setItem('selectedType', type);
+
+        // FIX: clear old subcategory when type changes
+        setSelectedSubcategory("All");
+        localStorage.removeItem('selectedSubcategory');
     }
+
     function resetFilters() {
         setSelectedGender(null);
         setSelectedType("All");
@@ -135,7 +154,9 @@ const Products = () => {
         localStorage.removeItem('selectedType');
         localStorage.removeItem('selectedSubcategory');
     }
+
     const handleAddCategory = (newCategory) => {
+        // Add new category at top locally (optimistic), then refetch to ensure consistency
         setCategory(prev => [newCategory, ...prev]);
     };
 
@@ -143,10 +164,10 @@ const Products = () => {
         if (!selectedType || selectedType === "All") return;
 
         try {
-            const currentCategory = setcategory.find(cat => cat.type === selectedType);
+            const currentCategory = categories.find(cat => cat.type === selectedType);
             if (!currentCategory) return;
 
-            const updatedSubcategories = currentCategory.subcategory.filter(
+            const updatedSubcategories = (currentCategory.subcategory || []).filter(
                 sub => sub !== subcategoryToDelete
             );
 
@@ -154,8 +175,8 @@ const Products = () => {
                 subcategory: updatedSubcategories
             });
 
-            const res = await axios.get(producttype);
-            setCategory(res.data);
+            // refresh categories from server
+            await fetchCategories();
 
             if (selectedSubcategory === subcategoryToDelete) {
                 setSelectedSubcategory("All");
@@ -171,7 +192,7 @@ const Products = () => {
         try {
             await axios.delete(`${server}/${productId}`);
             setProduct(product.filter(p => p.id !== productId));
-            setFilteredProducts(filteredProducts.filter(p => p.id !== productId));
+            setFilteredProducts(fp => fp.filter(p => p.id !== productId));
             setDeleteConfirm(null);
         } catch (error) {
             console.error('Error deleting product:', error);
@@ -181,7 +202,7 @@ const Products = () => {
 
     const applyAdditionalFilters = () => {
         setShowFilters(false);
-        // Filtering is handled in useEffect
+        // Filtering handled in useEffect
     };
 
     return (
@@ -240,7 +261,7 @@ const Products = () => {
 
                         <div className="relative w-full md:w-[83%] overflow-x-hidden rounded-xl">
                             <Slider {...sliderSettings}>
-                                {setcategory.map((p) => (
+                                {categories.map((p) => (
                                     <div key={p.id} className="px-2 py-1">
                                         <div
                                             onClick={() => filterByType(p.type)}
@@ -268,8 +289,8 @@ const Products = () => {
 
                 {/* Subcategories */}
                 <div className="flex flex-wrap gap-2 md:gap-3 mt-4 justify-center md:justify-start">
-                    {setcategory.find(cat => cat.type === selectedType)?.subcategory?.map((sub, i) => (
-                        <div key={i} className="relative group">
+                    {categories.find(cat => cat.type === selectedType)?.subcategory?.map((sub, i) => (
+                        <div key={sub || i} className="relative group">
                             <div
                                 onClick={() => { setSelectedSubcategory(sub); localStorage.setItem('selectedSubcategory', sub); }}
                                 className={`px-3 py-1 border-b-2 cursor-pointer transition-all duration-200 
@@ -298,7 +319,13 @@ const Products = () => {
                         </button>
                     )}
 
-                    {addsubcategory && <Addsubcategory type={selectedType} addsubcategory={setAddsubcategory} />}
+                    {addsubcategory && (
+                        <Addsubcategory
+                            type={selectedType}
+                            addsubcategory={setAddsubcategory}
+                            onUpdate={fetchCategories} // <-- pass update callback
+                        />
+                    )}
                 </div>
 
                 {addCategory && <AddCategory onAdd={handleAddCategory} display={setAddCategory} />}
@@ -309,13 +336,13 @@ const Products = () => {
                 {filteredProducts.map((p) => (
                     <div
                         key={p.id}
-                        className="h-[170px] w-[46%] sm:w-[31%] md:w-[194px] bg-white rounded-xl shadow-md hover:shadow-lg transition relative group"
+                        className="h-[170px] w-[46%]  sm:w-[31%] md:w-[194px] bg-white rounded-xl shadow-md hover:shadow-lg transition relative group"
                     >
                         <div
                             onClick={() => handleProductClick(p.id)}
-                            className="cursor-pointer h-full flex flex-col items-center justify-center"
+                            className="cursor-pointer  h-[170px] w-full flex flex-col items-center justify-center"
                         >
-                            <img src={p.image} className="h-[80%] w-[89%] rounded-t-xl object-cover" alt={p.article} />
+                            <img src={p.image} className="max-h-[80%] w-[89%] rounded-t-xl " alt={p.article} />
                             <div className="flex h-[10%] w-[89%] items-center justify-between">
                                 <span className="font-montserrat font-medium text-[14px] capitalize text-[#2E2E2E]">
                                     {p.article}
@@ -407,12 +434,7 @@ const Products = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-2xl shadow-2xl p-6 w-11/12 max-w-md">
                         <h2 className="text-2xl font-bold text-gray-800 mb-4">Confirm Deletion</h2>
-                        <p className="text-gray-600 mb-6">
-                            Are you sure you want to delete product <span className="font-semibold">{deleteConfirm.article}</span>?
-                            <br />
-                            <span className="text-sm text-red-600 mt-2 block">This action cannot be undone.</span>
-                        </p>
-
+                        <p className="mb-6">Are you sure you want to delete {deleteConfirm.article}?</p>
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setDeleteConfirm(null)}
@@ -422,15 +444,15 @@ const Products = () => {
                             </button>
                             <button
                                 onClick={() => handleDeleteProduct(deleteConfirm.id, deleteConfirm.article)}
-                                className="flex-1 px-4 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center justify-center gap-2"
+                                className="flex-1 px-4 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-all duration-200"
                             >
-                                <MdDelete />
                                 Delete
                             </button>
                         </div>
                     </div>
                 </div>
             )}
+
         </div>
     );
 };
